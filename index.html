@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>친환경 거점 - 제로웨이스트 샵 찾기</title>
+    <title>친환경 거점 - 전국 제로웨이스트 샵 찾기 (숲 테마)</title>
     <style>
-        /* 전체 레이아웃 설정 */
+        /* 전체 레이아웃 및 숲 테마 기본 색상 설정 */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             font-family: 'Malgun Gothic', dotum, sans-serif;
+            background-color: #1b3b22;
         }
         .container {
             display: flex;
@@ -18,99 +19,172 @@
             height: 100vh;
         }
 
-        /* 왼쪽 사이드바 스타일 */
+        /* 왼쪽 사이드바 스타일 (짙은 숲속 초록색) */
         .sidebar {
             width: 350px;
             height: 100%;
-            background: #f8f9fa;
+            background: #1b3b22; /* 딥 포레스트 그린 */
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #ddd;
+            border-right: 2px solid #142d1a;
             z-index: 10;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
         }
+        
+        /* 서비스 타이틀 추가 */
+        .sidebar-title {
+            padding: 20px 20px 0 20px;
+            color: #e8f5e9;
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
         .search-box {
             padding: 20px;
-            background: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: #1b3b22;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
         .search-row {
             display: flex;
             justify-content: space-between;
         }
+        
+        /* 입력창 및 셀렉트 박스 스타일 (자연 친화적 톤) */
         .search-box select {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px;
+            border: 1px solid #2e5a36;
+            border-radius: 6px;
             font-size: 14px;
+            background-color: #2e5a36;
+            color: #ffffff;
+        }
+        .search-box select option {
+            background-color: #1b3b22;
+            color: #ffffff;
         }
         .search-box input {
-            width: 68%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            width: 65%;
+            padding: 10px;
+            border: 1px solid #2e5a36;
+            border-radius: 6px;
+            background-color: #2e5a36;
+            color: #ffffff;
         }
+        .search-box input::placeholder {
+            color: #a5d6a7;
+        }
+        
+        /* 검색 버튼 스타일 (나뭇잎 연초록색) */
         .search-box button {
             width: 28%;
-            padding: 8px;
-            background: #fae100; /* 카카오 노란색 */
+            padding: 10px;
+            background: #81c784; 
+            color: #1b3b22;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
+            transition: background 0.2s;
+        }
+        .search-box button:hover {
+            background: #66bb6a;
         }
 
-        /* 검색 결과 리스트 스타일 */
+        /* 검색 결과 리스트 스타일 (나뭇잎 모양 느낌 카드) */
         #results-list {
             flex: 1;
             overflow-y: auto;
             list-style: none;
             margin: 0;
-            padding: 0;
+            padding: 10px 15px;
         }
+        
+        /* 스크롤바 디자인 변경 */
+        #results-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        #results-list::-webkit-scrollbar-thumb {
+            background: #2e5a36;
+            border-radius: 4px;
+        }
+        
         .item {
             padding: 15px;
-            border-bottom: 1px solid #eee;
+            border-radius: 8px;
+            background: #254d2e;
+            margin-bottom: 10px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            border-left: 4px solid #81c784;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .item:hover {
-            background: #f0f0f0;
+            background: #2e5a36;
+            transform: translateY(-2px);
         }
         .item h5 {
-            margin: 0 0 5px 0;
-            color: #2c5e3b; /* 친환경 느낌의 초록색 컨셉 */
-            font-size: 16px;
+            margin: 0 0 8px 0;
+            color: #ffffff; 
+            font-size: 15px;
         }
         .item .info-text {
-            font-size: 13px;
-            color: #555;
-            margin: 3px 0;
+            font-size: 12px;
+            color: #c8e6c9;
+            margin: 4px 0;
         }
         .item .label {
             font-weight: bold;
-            color: #777;
+            color: #81c784;
+            margin-right: 5px;
         }
 
-        /* 오른쪽 지도 영역 */
-        #map {
+        /* 오른쪽 지도 영역 및 오버레이 숲 레이어 */
+        .map-wrapper {
             flex: 1;
             height: 100%;
+            position: relative;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* [핵심] 지도 위에 초록색 숲 감성을 입히는 반투명 오버레이 컬러 스크린 (클릭 무시 설정 필수) */
+        .forest-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(46, 125, 50, 0.12); /* 초록빛 필터 */
+            mix-blend-mode: multiply; /* 지도와 자연스럽게 색상이 섞이도록 합성 */
+            pointer-events: none; /* 지도가 정상적으로 클릭 및 드래그 되도록 함 */
+            z-index: 5;
         }
 
-        /* 팝업(인포윈도우) 내부 커스텀 스타일 */
+        /* 팝업(인포윈도우) 내부 커스텀 스타일 (통나무 표지판 컨셉) */
         .info-window-content {
             padding: 10px;
             font-size: 13px;
             line-height: 1.5;
-            min-width: 150px;
+            min-width: 160px;
+            background: #f1f8e9;
+            border-radius: 4px;
         }
         .info-window-content h4 {
             margin: 0 0 5px 0;
-            color: #2c5e3b;
+            color: #1b3b22;
+            font-size: 14px;
+        }
+        .info-window-content p {
+            margin: 0;
+            color: #4c8c4a;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -118,22 +192,33 @@
 
 <div class="container">
     <div class="sidebar">
+        <h1 class="sidebar-title">🌳 친환경 거점 안내</h1>
         <div class="search-box">
             <select id="region-select" onchange="selectRegion()">
-                <option value="">-- 탐색할 지역 선택 --</option>
-                <option value="seoul">서울 지역</option>
-                <option value="gyeonggi">경기 지역</option>
+                <option value="">-- 탐색할 지역 선택 (전국) --</option>
+                <option value="seoul">서울특별시</option>
+                <option value="gyeonggi">경기도</option>
+                <option value="gangwon">강원도</option>
+                <option value="chungbuk">충청북도</option>
+                <option value="chungnam">충청남도</option>
+                <option value="jeonbuk">전라북도</option>
+                <option value="jeonnam">전라남도</option>
+                <option value="gyeongbuk">경상북도</option>
+                <option value="gyeongnam">경상남도</option>
+                <option value="jeju">제주특별자치도</option>
             </select>
             
             <div class="search-row">
-                <input type="text" id="keyword" placeholder="또는 직접 장소 검색...">
+                <input type="text" id="keyword" placeholder="직접 장소 검색...">
                 <button onclick="searchPlaces()">검색</button>
             </div>
         </div>
         <ul id="results-list"></ul>
     </div>
 
-    <div id="map"></div>
+    <div class="map-wrapper">
+        <div id="map"></div>
+        <div class="forest-overlay"></div> </div>
 </div>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=db51ba2fd4b1815d12500754751086cf&libraries=services&autoload=false"></script>
@@ -144,10 +229,10 @@
     let markers = []; // 마커를 담을 배열
     let activeInfoWindow = null; // 현재 지도에 열려있는 팝업 객체를 추적
 
-    // 곰 마커 이미지 URL (무료 아이콘 사이트의 이미지 주소)
+    // 귀여운 곰돌이 마커 이미지 URL
     const BEAR_MARKER_IMAGE_URL = 'https://cdn-icons-png.flaticon.com/512/4148/4148530.png'; 
 
-    // 제로웨이스트 샵 데이터베이스 (테스트용 더미 데이터)
+    // 전국 도 단위 제로웨이스트 샵 데이터베이스
     const zeroWasteShops = [
         {
             name: "알맹상점 망원점",
@@ -184,28 +269,98 @@
             hours: "11:00 ~ 21:00",
             phone: "031-333-4444",
             region: "gyeonggi"
+        },
+        {
+            name: "춘천 제로웨이스트 숍 동네방네",
+            lat: 37.881324,
+            lng: 127.729754,
+            address: "강원 춘천시 시청길 11",
+            hours: "10:00 ~ 19:00",
+            phone: "033-123-4567",
+            region: "gangwon"
+        },
+        {
+            name: "싱글룸 청주",
+            lat: 36.635894,
+            lng: 127.488945,
+            address: "충북 청주시 상당구 상당로 55",
+            hours: "11:00 ~ 20:00",
+            phone: "043-456-7890",
+            region: "chungbuk"
+        },
+        {
+            name: "천안 그린하우스",
+            lat: 36.815123,
+            lng: 127.113245,
+            address: "충남 천안시 서북구 불당21로 67",
+            hours: "12:00 ~ 21:00",
+            phone: "041-789-1234",
+            region: "chungnam"
+        },
+        {
+            name: "지구별가게 전주점",
+            lat: 35.824223,
+            lng: 127.147954,
+            address: "전북 전주시 완산구 팔달로 123",
+            hours: "11:00 ~ 19:00",
+            phone: "063-222-3333",
+            region: "jeonbuk"
+        },
+        {
+            name: "목포 에코라이프",
+            lat: 34.811954,
+            lng: 126.392435,
+            address: "전남 목포시 영산로 200",
+            hours: "10:00 ~ 18:00 (일요일 휴무)",
+            phone: "061-555-6666",
+            region: "jeonnam"
+        },
+        {
+            name: "포항 제로스테이션",
+            lat: 36.019124,
+            lng: 129.343245,
+            address: "경북 포항시 남구 지곡로 80",
+            hours: "10:00 ~ 20:00",
+            phone: "054-999-8888",
+            region: "gyeongbuk"
+        },
+        {
+            name: "창원 지구를 지켜라",
+            lat: 35.227954,
+            lng: 128.681245,
+            address: "경남 창원시 의창구 중앙대로 250",
+            hours: "11:00 ~ 20:00",
+            phone: "055-777-1111",
+            region: "gyeongnam"
+        },
+        {
+            name: "핸드스피크 제주",
+            lat: 33.499621,
+            lng: 126.531188,
+            address: "제주 제주시 이도이동 광양9길 5",
+            hours: "10:00 ~ 18:00 (토, 일 휴무)",
+            phone: "064-747-0000",
+            region: "jeju"
         }
     ];
 
-    // 지도가 완전히 로드된 후 실행
+    // 지도가 로드된 후 실행
     kakao.maps.load(function() {
         const mapContainer = document.getElementById('map');
         const mapOption = {
             center: new kakao.maps.LatLng(37.566826, 126.9786567), // 기본 좌표 (서울시청)
-            level: 5 // 확대 레벨 5
+            level: 5
         };
 
         // 지도 생성
         map = new kakao.maps.Map(mapContainer, mapOption);
-        
-        // 장소 검색 서비스 객체 생성
         ps = new kakao.maps.services.Places();
 
         // 현재 위치 가져오기
         getCurrentLocation();
     });
 
-    // 현재 위치를 가져오는 함수
+    // 현재 위치 정보 획득 함수
     function getCurrentLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -213,7 +368,6 @@
                 const lon = position.coords.longitude;
                 const locPosition = new kakao.maps.LatLng(lat, lon);
                 
-                // 지도 중심을 현재 위치로 이동
                 map.setCenter(locPosition);
             }, function(err) {
                 console.error("위치 정보를 가져오지 못했습니다.", err);
@@ -221,16 +375,15 @@
         }
     }
 
-    // 드롭다운 지역 선택 시 호출되는 함수
+    // 도 단위 드롭다운 선택 시 이벤트 함수
     function selectRegion() {
         const selectedRegion = document.getElementById('region-select').value;
         
-        // 기존 검색 결과, 마커, 리스트, 팝업 지우기
         clearAllResults();
 
         if (!selectedRegion) return;
 
-        // 데이터 배열에서 선택된 지역의 숍들만 필터링
+        // 선택 지역 데이터만 필터링
         const filteredShops = zeroWasteShops.filter(shop => shop.region === selectedRegion);
 
         if (filteredShops.length === 0) {
@@ -238,11 +391,10 @@
             return;
         }
 
-        // 필터링된 결과 노출
         displayZeroWasteShops(filteredShops);
     }
 
-    // 제로웨이스트 샵 목록을 지도와 리스트에 표시하는 함수
+    // 필터링된 상점 리스트 및 곰 마커 표시 함수
     function displayZeroWasteShops(shops) {
         const listEl = document.getElementById('results-list');
         const bounds = new kakao.maps.LatLngBounds();
@@ -250,21 +402,19 @@
         shops.forEach(shop => {
             const placePosition = new kakao.maps.LatLng(shop.lat, shop.lng);
             
-            // 곰 마커 생성
             const marker = displayBearMarker(placePosition, shop);
             bounds.extend(placePosition);
 
-            // 리스트 아이템 동적 생성 (이름, 주소, 영업시간, 전화번호 포함)
+            // 숲 속 카드 형태의 UI 리스트 아이템 추가
             const itemEl = document.createElement('li');
             itemEl.className = 'item';
             itemEl.innerHTML = `
-                <h5>${shop.name}</h5>
+                <h5>🌿 ${shop.name}</h5>
                 <div class="info-text"><span class="label">주소:</span> ${shop.address}</div>
                 <div class="info-text"><span class="label">시간:</span> ${shop.hours}</div>
                 <div class="info-text"><span class="label">전화:</span> ${shop.phone}</div>
             `;
             
-            // 리스트 클릭 시 해당 좌표로 이동 및 팝업 표시
             itemEl.onclick = function() {
                 map.panTo(placePosition);
                 openInfoWindow(marker, shop);
@@ -273,22 +423,20 @@
             listEl.appendChild(itemEl);
         });
 
-        // 마커가 모두 보이도록 지도 영역 확장 및 중심 이동
         map.setBounds(bounds);
     }
 
-    // 곰 커스텀 마커를 생성하는 함수
+    // 곰 커스텀 마커 생성 함수
     function displayBearMarker(position, shop) {
-        const imageSize = new kakao.maps.Size(36, 36); // 마커 크기 설정
+        const imageSize = new kakao.maps.Size(38, 38); 
         const markerImage = new kakao.maps.MarkerImage(BEAR_MARKER_IMAGE_URL, imageSize);
 
         const marker = new kakao.maps.Marker({
             map: map,
             position: position,
-            image: markerImage // 곰 아이콘 적용
+            image: markerImage
         });
 
-        // 마커 클릭 시 이름, 주소 팝업 표시 이벤트 등록
         kakao.maps.event.addListener(marker, 'click', function() {
             openInfoWindow(marker, shop);
         });
@@ -297,53 +445,47 @@
         return marker;
     }
 
-    // 이름과 주소를 보여주는 팝업(인포윈도우) 열기 함수
+    // 인포윈도우 팝업 열기 함수
     function openInfoWindow(marker, shop) {
-        // 기존에 열려있는 팝업이 있다면 지도에서 먼저 닫기
         if (activeInfoWindow) {
             activeInfoWindow.close();
         }
 
         const content = `
             <div class="info-window-content">
-                <h4>${shop.name}</h4>
-                <p style="margin:0; color:#666;">${shop.address}</p>
+                <h4>🐻 ${shop.name}</h4>
+                <p>${shop.address}</p>
             </div>
         `;
 
         const infoWindow = new kakao.maps.InfoWindow({
             content: content,
-            removable: true // 닫기(X) 버튼 활성화
+            removable: true
         });
 
         infoWindow.open(map, marker);
-        activeInfoWindow = infoWindow; // 추적 변수에 현재 열린 팝업 할당
+        activeInfoWindow = infoWindow;
     }
 
-    // 기존 검색 결과, 마커, 리스트, 팝업을 완전히 초기화하는 함수
+    // 화면 초기화 함수
     function clearAllResults() {
-        // 마커 제거
         for (let i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
         }
         markers = [];
-
-        // 리스트 비우기
         document.getElementById('results-list').innerHTML = '';
-
-        // 열려있는 팝업 닫기
         if (activeInfoWindow) {
             activeInfoWindow.close();
             activeInfoWindow = null;
         }
     }
 
-    // 검색창 엔터키 이벤트
+    // 엔터키 검색 이벤트
     document.getElementById('keyword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') searchPlaces();
     });
 
-    // 키워드 검색 함수 (기본 카카오 검색 기능도 연동 유지)
+    // 일반 키워드 검색 함수
     function searchPlaces() {
         const keyword = document.getElementById('keyword').value;
 
@@ -352,15 +494,13 @@
             return;
         }
 
-        // 키워드 검색 시 지역 선택 select 박스 초기화 및 화면 정리
         document.getElementById('region-select').value = "";
         clearAllResults();
 
-        // 카카오 장소 검색 API 호출
         ps.keywordSearch(keyword, placesSearchCB);
     }
 
-    // 검색 결과 콜백 함수
+    // 검색 결과 콜백
     function placesSearchCB(data, status, pagination) {
         if (status === kakao.maps.services.Status.OK) {
             displayPlaces(data);
@@ -371,7 +511,7 @@
         }
     }
 
-    // 카카오 API로 직접 검색한 결과를 처리하는 함수
+    // 일반 검색 결과 화면 노출 함수
     function displayPlaces(places) {
         const listEl = document.getElementById('results-list');
         const bounds = new kakao.maps.LatLngBounds();
@@ -379,7 +519,6 @@
         for (let i = 0; i < places.length; i++) {
             const placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
             
-            // 일반 검색 결과도 동일한 포맷으로 가공하여 곰 마커와 상세 정보 리스트 사용
             const shopFormat = {
                 name: places[i].place_name,
                 address: places[i].road_address_name || places[i].address_name,
@@ -393,7 +532,7 @@
             const itemEl = document.createElement('li');
             itemEl.className = 'item';
             itemEl.innerHTML = `
-                <h5>${shopFormat.name}</h5>
+                <h5>🌿 ${shopFormat.name}</h5>
                 <div class="info-text"><span class="label">주소:</span> ${shopFormat.address}</div>
                 <div class="info-text"><span class="label">시간:</span> ${shopFormat.hours}</div>
                 <div class="info-text"><span class="label">전화:</span> ${shopFormat.phone}</div>
