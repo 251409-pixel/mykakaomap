@@ -252,7 +252,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(13, 38, 19, 0.7);
+            background: rgba(13, 38, 19, 0.5); /* 오버레이를 조금 더 투명하게 해서 지도 가독성 향상 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -302,7 +302,7 @@
             font-weight: bold;
             padding: 12px;
             border-radius: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 5px; /* 하단 확인 문구 유도용 마진 감소 */
             transform: rotate(-3deg);
             box-shadow: 3px 3px 0px #ff7043;
             letter-spacing: 1px;
@@ -312,20 +312,13 @@
             color: #ffffff;
             box-shadow: 3px 3px 0px #0d2613;
         }
-        .btn-modal-close {
-            background: #0d2613;
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            font-size: 16px;
-            font-family: 'Gaegu', sans-serif;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 3px 3px 0px #76ff03;
-        }
-        .btn-modal-close:hover {
-            background: #1b4d27;
+        
+        /* 자동으로 꺼진다는 안내를 주는 작고 귀여운 서브 텍스트 */
+        .modal-auto-text {
+            font-size: 14px;
+            color: #666;
+            margin-top: 15px;
+            font-style: italic;
         }
 
         @keyframes wave {
@@ -341,7 +334,7 @@
         <span class="modal-icon" id="modal-icon">🍃</span>
         <div class="modal-title" id="modal-title">시스템 알림</div>
         <div class="modal-banner" id="modal-banner">지구 살리기 GREEN GREEN</div>
-        <button class="btn-modal-close" onclick="closeForestModal()">확인 완료! 🌳</button>
+        <div class="modal-auto-text">잠시 후 자동으로 닫혀요 ⏰</div>
     </div>
 </div>
 
@@ -397,12 +390,19 @@
     let currentTab = 'shop'; 
     let userLatitude = 37.566826; 
     let userLongitude = 126.9786567; 
+    let modalTimer = null; // 타이머가 겹치지 않게 관리해 줄 변수
 
+    // [수정] 팝업 노출 후 2초 뒤 자동 소멸 타이머 장착 로직
     function showForestModal(type, targetName) {
         const overlay = document.getElementById('custom-modal-overlay');
         const icon = document.getElementById('modal-icon');
         const title = document.getElementById('modal-title');
         const banner = document.getElementById('modal-banner');
+
+        // 기존에 작동 중이던 타이머가 있다면 초기화해서 충돌 차단
+        if (modalTimer) {
+            clearTimeout(modalTimer);
+        }
 
         if (type === 'search') {
             icon.innerHTML = '🍃';
@@ -417,6 +417,11 @@
         }
 
         overlay.classList.add('show');
+
+        // 정확히 2초(2000밀리초) 후에 자동으로 팝업을 닫음
+        modalTimer = setTimeout(function() {
+            closeForestModal();
+        }, 2000);
     }
 
     function closeForestModal() {
