@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>친환경 거점 - 전국 제로웨이스트 샵 찾기 (숲 테마)</title>
+    <title>지구랑 썸타기 - 친환경 거점 찾기</title>
     <style>
         /* 전체 레이아웃 및 숲 테마 기본 색상 설정 */
         body, html {
@@ -21,7 +21,7 @@
 
         /* 왼쪽 사이드바 스타일 (짙은 숲속 초록색) */
         .sidebar {
-            width: 350px;
+            width: 380px;
             height: 100%;
             background: #1b3b22; /* 딥 포레스트 그린 */
             display: flex;
@@ -31,57 +31,81 @@
             box-shadow: 4px 0 15px rgba(0,0,0,0.3);
         }
         
-        /* 서비스 타이틀 추가 */
+        /* 서비스 타이틀 */
         .sidebar-title {
-            padding: 20px 20px 0 20px;
+            padding: 20px 20px 10px 20px;
             color: #e8f5e9;
             margin: 0;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: bold;
             text-align: center;
+            letter-spacing: -1px;
         }
         
+        /* 탭 메뉴 스타일 (즐겨찾기 탭 추가로 인해 3분할) */
+        .tab-menu {
+            display: flex;
+            padding: 0 15px;
+            gap: 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 5px;
+            background: #254d2e;
+            color: #a5d6a7;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .tab-btn.active {
+            background: #2e7d32;
+            color: #ffffff;
+            border-bottom: 2px solid #81c784;
+        }
+
+        /* 검색 영역 박스 */
         .search-box {
-            padding: 20px;
-            background: #1b3b22;
+            padding: 15px;
+            background: #2e7d32; 
+            margin: 0 15px 10px 15px;
+            border-radius: 0 0 6px 6px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-        }
-        .search-row {
-            display: flex;
-            justify-content: space-between;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
-        /* 입력창 및 셀렉트 박스 스타일 (자연 친화적 톤) */
-        .search-box select {
+        /* 입력창 및 셀렉트 박스 스타일 */
+        .search-box select, .search-box input {
             width: 100%;
             padding: 10px;
-            border: 1px solid #2e5a36;
+            border: 1px solid #1b3b22;
             border-radius: 6px;
             font-size: 14px;
-            background-color: #2e5a36;
+            background-color: #1b3b22;
             color: #ffffff;
+            box-sizing: border-box;
         }
         .search-box select option {
             background-color: #1b3b22;
             color: #ffffff;
         }
-        .search-box input {
-            width: 65%;
-            padding: 10px;
-            border: 1px solid #2e5a36;
-            border-radius: 6px;
-            background-color: #2e5a36;
-            color: #ffffff;
-        }
         .search-box input::placeholder {
             color: #a5d6a7;
         }
+
+        .search-row {
+            display: flex;
+            gap: 5px;
+        }
         
-        /* 검색 버튼 스타일 (나뭇잎 연초록색) */
-        .search-box button {
-            width: 28%;
+        /* 버튼 스타일 */
+        .btn-search {
+            width: 30%;
             padding: 10px;
             background: #81c784; 
             color: #1b3b22;
@@ -89,13 +113,23 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.2s;
         }
-        .search-box button:hover {
-            background: #66bb6a;
+        .btn-nearby {
+            width: 100%;
+            padding: 10px;
+            background: #8d6e63; 
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: center;
         }
+        .btn-search:hover { background: #66bb6a; }
+        .btn-nearby:hover { background: #795548; }
 
-        /* 검색 결과 리스트 스타일 (나뭇잎 모양 느낌 카드) */
+        /* 검색 결과 및 즐겨찾기 리스트 스타일 */
         #results-list {
             flex: 1;
             overflow-y: auto;
@@ -103,8 +137,6 @@
             margin: 0;
             padding: 10px 15px;
         }
-        
-        /* 스크롤바 디자인 변경 */
         #results-list::-webkit-scrollbar {
             width: 6px;
         }
@@ -113,6 +145,7 @@
             border-radius: 4px;
         }
         
+        /* 나뭇잎 카드 디자인 */
         .item {
             padding: 15px;
             border-radius: 8px;
@@ -122,6 +155,7 @@
             transition: all 0.2s;
             border-left: 4px solid #81c784;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
         }
         .item:hover {
             background: #2e5a36;
@@ -131,6 +165,7 @@
             margin: 0 0 8px 0;
             color: #ffffff; 
             font-size: 15px;
+            padding-right: 60px; /* 버튼과 겹치지 않도록 여백 설정 */
         }
         .item .info-text {
             font-size: 12px;
@@ -143,6 +178,30 @@
             margin-right: 5px;
         }
 
+        /* [기능 추가] 저장 / 삭제 버튼 스타일 */
+        .btn-bookmark {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 5px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-save {
+            background: #fff59d;
+            color: #5d4037;
+        }
+        .btn-save:hover { background: #fff176; }
+        .btn-delete {
+            background: #ffab91;
+            color: #d84315;
+        }
+        .btn-delete:hover { background: #ff8a65; }
+
         /* 오른쪽 지도 영역 및 오버레이 숲 레이어 */
         .map-wrapper {
             flex: 1;
@@ -154,20 +213,20 @@
             height: 100%;
         }
         
-        /* [핵심] 지도 위에 초록색 숲 감성을 입히는 반투명 오버레이 컬러 스크린 (클릭 무시 설정 필수) */
+        /* 지도 위 초록색 숲 감성 오버레이 필터 */
         .forest-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(46, 125, 50, 0.12); /* 초록빛 필터 */
-            mix-blend-mode: multiply; /* 지도와 자연스럽게 색상이 섞이도록 합성 */
-            pointer-events: none; /* 지도가 정상적으로 클릭 및 드래그 되도록 함 */
+            background-color: rgba(46, 125, 50, 0.1);
+            mix-blend-mode: multiply;
+            pointer-events: none;
             z-index: 5;
         }
 
-        /* 팝업(인포윈도우) 내부 커스텀 스타일 (통나무 표지판 컨셉) */
+        /* 팝업(인포윈도우) 내부 커스텀 스타일 */
         .info-window-content {
             padding: 10px;
             font-size: 13px;
@@ -192,33 +251,44 @@
 
 <div class="container">
     <div class="sidebar">
-        <h1 class="sidebar-title">🌳 친환경 거점 안내</h1>
-        <div class="search-box">
+        <h1 class="sidebar-title">🌳 지구랑 썸타기</h1>
+        
+        <div class="tab-menu">
+            <button id="tab-shop" class="tab-btn active" onclick="switchTab('shop')">제로웨이스트 샵</button>
+            <button id="tab-ev" class="tab-btn" onclick="switchTab('ev')">전기차 충전소</button>
+            <button id="tab-bookmark" class="tab-btn" onclick="switchTab('bookmark')">⭐ 자주 찾는 곳</button>
+        </div>
+
+        <div class="search-box" id="search-area">
             <select id="region-select" onchange="selectRegion()">
-                <option value="">-- 탐색할 지역 선택 (전국) --</option>
-                <option value="seoul">서울특별시</option>
-                <option value="gyeonggi">경기도</option>
-                <option value="gangwon">강원도</option>
-                <option value="chungbuk">충청북도</option>
-                <option value="chungnam">충청남도</option>
-                <option value="jeonbuk">전라북도</option>
-                <option value="jeonnam">전라남도</option>
-                <option value="gyeongbuk">경상북도</option>
-                <option value="gyeongnam">경상남도</option>
-                <option value="jeju">제주특별자치도</option>
+                <option value="">-- 탐색할 지역 선택 (도 단위) --</option>
+                <option value="서울">서울특별시</option>
+                <option value="경기">경기도</option>
+                <option value="강원">강원도</option>
+                <option value="충북">충청북도</option>
+                <option value="충남">충청남도</option>
+                <option value="전북">전라북도</option>
+                <option value="전남">전라남도</option>
+                <option value="경북">경상북도</option>
+                <option value="경남">경상남도</option>
+                <option value="제주">제주특별자치도</option>
             </select>
             
             <div class="search-row">
                 <input type="text" id="keyword" placeholder="직접 장소 검색...">
-                <button onclick="searchPlaces()">검색</button>
+                <button class="btn-search" onclick="searchPlaces()">검색</button>
             </div>
+
+            <button class="btn-nearby" onclick="searchNearby()">📍 내 위치 주변 검색하기</button>
         </div>
+        
         <ul id="results-list"></ul>
     </div>
 
     <div class="map-wrapper">
         <div id="map"></div>
-        <div class="forest-overlay"></div> </div>
+        <div class="forest-overlay"></div>
+    </div>
 </div>
 
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=db51ba2fd4b1815d12500754751086cf&libraries=services&autoload=false"></script>
@@ -226,202 +296,181 @@
 <script>
     let map;
     let ps; // 장소 검색 객체
-    let markers = []; // 마커를 담을 배열
-    let activeInfoWindow = null; // 현재 지도에 열려있는 팝업 객체를 추적
+    let markers = []; // 마커 배열
+    let activeInfoWindow = null; // 열려있는 팝업 추적
+    let currentTab = 'shop'; // 현재 선택된 탭 ('shop', 'ev', 'bookmark')
+    let userLatitude = 37.566826; // 사용자 위도 기본값
+    let userLongitude = 126.9786567; // 사용자 경도 기본값
 
-    // 귀여운 곰돌이 마커 이미지 URL
+    // 지도 핀 마커 이미지 (귀여운 곰돌이)
     const BEAR_MARKER_IMAGE_URL = 'https://cdn-icons-png.flaticon.com/512/4148/4148530.png'; 
 
-    // 전국 도 단위 제로웨이스트 샵 데이터베이스
-    const zeroWasteShops = [
-        {
-            name: "알맹상점 망원점",
-            lat: 37.555843,
-            lng: 126.910363,
-            address: "서울 마포구 월드컵로49 2층",
-            hours: "12:00 ~ 20:00 (월요일 휴무)",
-            phone: "02-1234-5678",
-            region: "seoul"
-        },
-        {
-            name: "지구샵 상도점",
-            lat: 37.502345,
-            lng: 126.942123,
-            address: "서울 동작구 성대로1길 16",
-            hours: "11:00 ~ 19:00 (일요일 휴무)",
-            phone: "02-9876-5432",
-            region: "seoul"
-        },
-        {
-            name: "푸른 지구 가가",
-            lat: 37.263541,
-            lng: 127.028631,
-            address: "경기 수원시 팔달구 효원로 200",
-            hours: "10:00 ~ 18:00",
-            phone: "031-111-2222",
-            region: "gyeonggi"
-        },
-        {
-            name: "그린 라이프 일산",
-            lat: 37.658321,
-            lng: 126.772543,
-            address: "경기 고양시 일산동구 정발산로 24",
-            hours: "11:00 ~ 21:00",
-            phone: "031-333-4444",
-            region: "gyeonggi"
-        },
-        {
-            name: "춘천 제로웨이스트 숍 동네방네",
-            lat: 37.881324,
-            lng: 127.729754,
-            address: "강원 춘천시 시청길 11",
-            hours: "10:00 ~ 19:00",
-            phone: "033-123-4567",
-            region: "gangwon"
-        },
-        {
-            name: "싱글룸 청주",
-            lat: 36.635894,
-            lng: 127.488945,
-            address: "충북 청주시 상당구 상당로 55",
-            hours: "11:00 ~ 20:00",
-            phone: "043-456-7890",
-            region: "chungbuk"
-        },
-        {
-            name: "천안 그린하우스",
-            lat: 36.815123,
-            lng: 127.113245,
-            address: "충남 천안시 서북구 불당21로 67",
-            hours: "12:00 ~ 21:00",
-            phone: "041-789-1234",
-            region: "chungnam"
-        },
-        {
-            name: "지구별가게 전주점",
-            lat: 35.824223,
-            lng: 127.147954,
-            address: "전북 전주시 완산구 팔달로 123",
-            hours: "11:00 ~ 19:00",
-            phone: "063-222-3333",
-            region: "jeonbuk"
-        },
-        {
-            name: "목포 에코라이프",
-            lat: 34.811954,
-            lng: 126.392435,
-            address: "전남 목포시 영산로 200",
-            hours: "10:00 ~ 18:00 (일요일 휴무)",
-            phone: "061-555-6666",
-            region: "jeonnam"
-        },
-        {
-            name: "포항 제로스테이션",
-            lat: 36.019124,
-            lng: 129.343245,
-            address: "경북 포항시 남구 지곡로 80",
-            hours: "10:00 ~ 20:00",
-            phone: "054-999-8888",
-            region: "gyeongbuk"
-        },
-        {
-            name: "창원 지구를 지켜라",
-            lat: 35.227954,
-            lng: 128.681245,
-            address: "경남 창원시 의창구 중앙대로 250",
-            hours: "11:00 ~ 20:00",
-            phone: "055-777-1111",
-            region: "gyeongnam"
-        },
-        {
-            name: "핸드스피크 제주",
-            lat: 33.499621,
-            lng: 126.531188,
-            address: "제주 제주시 이도이동 광양9길 5",
-            hours: "10:00 ~ 18:00 (토, 일 휴무)",
-            phone: "064-747-0000",
-            region: "jeju"
-        }
-    ];
-
-    // 지도가 로드된 후 실행
+    // 카카오맵 초기화
     kakao.maps.load(function() {
         const mapContainer = document.getElementById('map');
         const mapOption = {
-            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 기본 좌표 (서울시청)
+            center: new kakao.maps.LatLng(userLatitude, userLongitude),
             level: 5
         };
 
-        // 지도 생성
         map = new kakao.maps.Map(mapContainer, mapOption);
         ps = new kakao.maps.services.Places();
 
-        // 현재 위치 가져오기
-        getCurrentLocation();
+        // 현재 위치 좌표 동기화
+        syncUserLocation();
     });
 
-    // 현재 위치 정보 획득 함수
-    function getCurrentLocation() {
+    // 현재 위치를 브라우저 GPS로 가져오는 함수
+    function syncUserLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const locPosition = new kakao.maps.LatLng(lat, lon);
-                
-                map.setCenter(locPosition);
-            }, function(err) {
-                console.error("위치 정보를 가져오지 못했습니다.", err);
+                userLatitude = position.coords.latitude;
+                userLongitude = position.coords.longitude;
+                map.setCenter(new kakao.maps.LatLng(userLatitude, userLongitude));
             });
         }
     }
 
-    // 도 단위 드롭다운 선택 시 이벤트 함수
+    // 탭 전환 처리 함수
+    function switchTab(tabName) {
+        currentTab = tabName;
+        
+        // 모든 탭 버튼 활성화 클래스 제거
+        document.getElementById('tab-shop').classList.remove('active');
+        document.getElementById('tab-ev').classList.remove('active');
+        document.getElementById('tab-bookmark').classList.remove('active');
+        
+        // 검색창 영역 엘리먼트 가시성 제어용
+        const searchArea = document.getElementById('search-area');
+
+        // 기존 렌더링 결과 일괄 청소
+        clearAllResults();
+
+        if(tabName === 'shop') {
+            document.getElementById('tab-shop').classList.add('active');
+            searchArea.style.display = "flex"; // 검색 필터 노출
+            document.getElementById('keyword').placeholder = "제로웨이스트 샵 검색...";
+        } else if (tabName === 'ev') {
+            document.getElementById('tab-ev').classList.add('active');
+            searchArea.style.display = "flex"; // 검색 필터 노출
+            document.getElementById('keyword').placeholder = "전기차 충전소 검색...";
+        } else if (tabName === 'bookmark') {
+            document.getElementById('tab-bookmark').classList.add('active');
+            searchArea.style.display = "none"; // 즐겨찾기 탭에서는 상단 검색바를 숨김 처리하여 깔끔하게 제공
+            displayBookmarks(); // 저장된 즐겨찾기 리스트 로드 및 표기
+        }
+
+        // 검색어 입력 필드 초기화
+        document.getElementById('region-select').value = "";
+        document.getElementById('keyword').value = "";
+    }
+
+    // 내 위치 주변 검색 기능
+    function searchNearby() {
+        clearAllResults();
+        document.getElementById('region-select').value = "";
+
+        const searchCenter = new kakao.maps.LatLng(userLatitude, userLongitude);
+        map.setCenter(searchCenter);
+
+        const searchQuery = (currentTab === 'shop') ? "제로웨이스트" : "전기차충전소";
+        const searchOptions = {
+            location: searchCenter,
+            radius: 5000,
+            sort: kakao.maps.services.SortBy.ACCURACY
+        };
+
+        ps.keywordSearch(searchQuery, placesSearchCB, searchOptions);
+    }
+
+    // 지정한 특정 지역(도 단위) 전체 검색 기능
     function selectRegion() {
         const selectedRegion = document.getElementById('region-select').value;
-        
         clearAllResults();
 
         if (!selectedRegion) return;
 
-        // 선택 지역 데이터만 필터링
-        const filteredShops = zeroWasteShops.filter(shop => shop.region === selectedRegion);
+        const targetCategory = (currentTab === 'shop') ? "제로웨이스트" : "전기차충전소";
+        const fullQuery = `${selectedRegion} ${targetCategory}`;
 
-        if (filteredShops.length === 0) {
-            alert('해당 지역에 등록된 제로웨이스트 샵이 없습니다.');
+        ps.keywordSearch(fullQuery, placesSearchCB);
+    }
+
+    // 키워드 텍스트 검색 기능
+    function searchPlaces() {
+        const keyword = document.getElementById('keyword').value;
+
+        if (!keyword.replace(/^\s+|\s+$/g, '')) {
+            alert('검색어를 입력해주세요!');
             return;
         }
 
-        displayZeroWasteShops(filteredShops);
+        document.getElementById('region-select').value = "";
+        clearAllResults();
+
+        const suffix = (currentTab === 'shop') ? " 제로웨이스트" : " 전기차";
+        ps.keywordSearch(keyword + suffix, placesSearchCB);
     }
 
-    // 필터링된 상점 리스트 및 곰 마커 표시 함수
-    function displayZeroWasteShops(shops) {
+    // 장소 검색 결과 콜백 함수
+    function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+            displayPlaces(data);
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+            alert('검색 결과가 존재하지 않습니다.');
+        } else {
+            alert('검색 중 오류가 발생했습니다.');
+        }
+    }
+
+    // 검색된 데이터를 지도 마커와 리스트에 출력하는 함수
+    function displayPlaces(places) {
         const listEl = document.getElementById('results-list');
         const bounds = new kakao.maps.LatLngBounds();
+        const iconTag = (currentTab === 'shop') ? "🌿" : "⚡";
 
-        shops.forEach(shop => {
-            const placePosition = new kakao.maps.LatLng(shop.lat, shop.lng);
+        for (let i = 0; i < places.length; i++) {
+            const placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
             
-            const marker = displayBearMarker(placePosition, shop);
+            const shopFormat = {
+                id: places[i].id, // 고유 ID 저장용으로 사용
+                name: places[i].place_name,
+                address: places[i].road_address_name || places[i].address_name,
+                phone: places[i].phone || "번호 등록 없음",
+                lat: places[i].y,
+                lng: places[i].x,
+                type: currentTab // shop 또는 ev 타입 보존
+            };
+
+            const marker = displayBearMarker(placePosition, shopFormat);
             bounds.extend(placePosition);
 
-            // 숲 속 카드 형태의 UI 리스트 아이템 추가
+            // 사이드바 아이템 엘리먼트 카드 빌드
             const itemEl = document.createElement('li');
             itemEl.className = 'item';
             itemEl.innerHTML = `
-                <h5>🌿 ${shop.name}</h5>
-                <div class="info-text"><span class="label">주소:</span> ${shop.address}</div>
-                <div class="info-text"><span class="label">시간:</span> ${shop.hours}</div>
-                <div class="info-text"><span class="label">전화:</span> ${shop.phone}</div>
+                <h5>${iconTag} ${shopFormat.name}</h5>
+                <div class="info-text"><span class="label">주소:</span> ${shopFormat.address}</div>
+                <div class="info-text"><span class="label">전화:</span> ${shopFormat.phone}</div>
+                <button class="btn-bookmark btn-save" id="btn-save-${shopFormat.id}">⭐ 저장</button>
             `;
             
-            itemEl.onclick = function() {
+            // 카드 바디 클릭 시 지도 이동 및 마커 인포윈도우 오픈
+            itemEl.onclick = function(e) {
+                // 저장 버튼 클릭 시에는 지도 이동 이벤트가 발동하지 않도록 방어 코드 추가
+                if(e.target.classList.contains('btn-bookmark')) return;
                 map.panTo(placePosition);
-                openInfoWindow(marker, shop);
+                openInfoWindow(marker, shopFormat);
+            };
+
+            // [기능 추가] 저장 버튼 클릭 이벤트 리스너 설정
+            const saveBtn = itemEl.querySelector(`#btn-save-${shopFormat.id}`);
+            saveBtn.onclick = function() {
+                addBookmark(shopFormat);
             };
 
             listEl.appendChild(itemEl);
-        });
+        }
 
         map.setBounds(bounds);
     }
@@ -445,15 +494,16 @@
         return marker;
     }
 
-    // 인포윈도우 팝업 열기 함수
+    // 인포윈도우 열기 함수
     function openInfoWindow(marker, shop) {
         if (activeInfoWindow) {
             activeInfoWindow.close();
         }
 
+        const iconTag = (shop.type === 'shop') ? "🐻" : "🔋";
         const content = `
             <div class="info-window-content">
-                <h4>🐻 ${shop.name}</h4>
+                <h4>${iconTag} ${shop.name}</h4>
                 <p>${shop.address}</p>
             </div>
         `;
@@ -467,7 +517,81 @@
         activeInfoWindow = infoWindow;
     }
 
-    // 화면 초기화 함수
+    // [기능 추가] 로컬 스토리지에 즐겨찾기 장소 추가하는 함수
+    function addBookmark(shop) {
+        let bookmarks = JSON.parse(localStorage.getItem('earth_bookmarks')) || [];
+        
+        // 이미 저장된 장소인지 중복 검사
+        const isExist = bookmarks.some(item => item.id === shop.id);
+        if (isExist) {
+            alert('이미 자주 찾는 장소에 등록된 곳입니다!');
+            return;
+        }
+
+        bookmarks.push(shop);
+        localStorage.setItem('earth_bookmarks', JSON.stringify(bookmarks));
+        alert('🌿 자주 찾는 장소에 저장되었습니다!');
+    }
+
+    // [기능 추가] 로컬 스토리지에서 즐겨찾기 장소 삭제하는 함수
+    function deleteBookmark(shopId) {
+        let bookmarks = JSON.parse(localStorage.getItem('earth_bookmarks')) || [];
+        bookmarks = bookmarks.filter(item => item.id !== shopId);
+        localStorage.setItem('earth_bookmarks', JSON.stringify(bookmarks));
+        
+        // 즐겨찾기 리스트 갱신 렌더링
+        clearAllResults();
+        displayBookmarks();
+    }
+
+    // [기능 추가] 자주 찾는 장소(즐겨찾기) 리스트를 화면과 지도에 렌더링하는 함수
+    function displayBookmarks() {
+        const listEl = document.getElementById('results-list');
+        const bookmarks = JSON.parse(localStorage.getItem('earth_bookmarks')) || [];
+
+        if (bookmarks.length === 0) {
+            listEl.innerHTML = `<li style="color: #a5d6a7; text-align: center; margin-top: 50px; font-size: 14px;">아직 저장된 장소가 없습니다.<br>샵이나 충전소를 검색 후 ⭐ 저장 버튼을 눌러보세요!</li>`;
+            return;
+        }
+
+        const bounds = new kakao.maps.LatLngBounds();
+
+        bookmarks.forEach(shop => {
+            const placePosition = new kakao.maps.LatLng(shop.lat, shop.lng);
+            const marker = displayBearMarker(placePosition, shop);
+            bounds.extend(placePosition);
+
+            const iconTag = (shop.type === 'shop') ? "🌿" : "⚡";
+
+            const itemEl = document.createElement('li');
+            itemEl.className = 'item';
+            itemEl.innerHTML = `
+                <h5>${iconTag} ${shop.name}</h5>
+                <div class="info-text"><span class="label">주소:</span> ${shop.address}</div>
+                <div class="info-text"><span class="label">전화:</span> ${shop.phone}</div>
+                <button class="btn-bookmark btn-delete" id="btn-del-${shop.id}">❌ 삭제</button>
+            `;
+
+            // 클릭 시 해당 지도 위치 표기
+            itemEl.onclick = function(e) {
+                if(e.target.classList.contains('btn-bookmark')) return;
+                map.panTo(placePosition);
+                openInfoWindow(marker, shop);
+            };
+
+            // 삭제 버튼 이벤트 바인딩
+            const delBtn = itemEl.querySelector(`#btn-del-${shop.id}`);
+            delBtn.onclick = function() {
+                deleteBookmark(shop.id);
+            };
+
+            listEl.appendChild(itemEl);
+        });
+
+        map.setBounds(bounds);
+    }
+
+    // 화면 데이터 초기화 헬퍼 함수
     function clearAllResults() {
         for (let i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
@@ -480,74 +604,10 @@
         }
     }
 
-    // 엔터키 검색 이벤트
+    // 엔터키 처리
     document.getElementById('keyword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') searchPlaces();
     });
-
-    // 일반 키워드 검색 함수
-    function searchPlaces() {
-        const keyword = document.getElementById('keyword').value;
-
-        if (!keyword.replace(/^\s+|\s+$/g, '')) {
-            alert('키워드를 입력해주세요!');
-            return;
-        }
-
-        document.getElementById('region-select').value = "";
-        clearAllResults();
-
-        ps.keywordSearch(keyword, placesSearchCB);
-    }
-
-    // 검색 결과 콜백
-    function placesSearchCB(data, status, pagination) {
-        if (status === kakao.maps.services.Status.OK) {
-            displayPlaces(data);
-        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-            alert('검색 결과가 없습니다.');
-        } else {
-            alert('검색 중 오류가 발생했습니다.');
-        }
-    }
-
-    // 일반 검색 결과 화면 노출 함수
-    function displayPlaces(places) {
-        const listEl = document.getElementById('results-list');
-        const bounds = new kakao.maps.LatLngBounds();
-
-        for (let i = 0; i < places.length; i++) {
-            const placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
-            
-            const shopFormat = {
-                name: places[i].place_name,
-                address: places[i].road_address_name || places[i].address_name,
-                hours: "정보 없음 (상점 문의)",
-                phone: places[i].phone || "전화번호 없음"
-            };
-
-            const marker = displayBearMarker(placePosition, shopFormat);
-            bounds.extend(placePosition);
-
-            const itemEl = document.createElement('li');
-            itemEl.className = 'item';
-            itemEl.innerHTML = `
-                <h5>🌿 ${shopFormat.name}</h5>
-                <div class="info-text"><span class="label">주소:</span> ${shopFormat.address}</div>
-                <div class="info-text"><span class="label">시간:</span> ${shopFormat.hours}</div>
-                <div class="info-text"><span class="label">전화:</span> ${shopFormat.phone}</div>
-            `;
-            
-            itemEl.onclick = function() {
-                map.panTo(placePosition);
-                openInfoWindow(marker, shopFormat);
-            };
-
-            listEl.appendChild(itemEl);
-        }
-
-        map.setBounds(bounds);
-    }
 </script>
 
 </body>
