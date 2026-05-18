@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>지구랑 썸타기 - 친환경 거점 찾기</title>
     <style>
-        /* 전체 레이아웃 및 숲 테마 기본 색상 설정 */
+        /* 웹폰트 로드: 아기자기하고 귀여운 눈누 프리텐다드/이롭게 바탕 스타일 조합 */
+        @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Orbit&display=swap');
+
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: 'Malgun Gothic', dotum, sans-serif;
-            background-color: #1b3b22;
+            font-family: 'Gaegu', 'Malgun Gothic', sans-serif;
+            background-color: #0d2613;
+            overflow: hidden;
         }
         .container {
             display: flex;
@@ -19,164 +22,181 @@
             height: 100vh;
         }
 
-        /* 왼쪽 사이드바 스타일 */
+        /* [디자인 변경] 사이드바를 더 키치한 포레스트 힙 감성으로 */
         .sidebar {
-            width: 380px;
+            width: 390px;
             height: 100%;
-            background: #1b3b22; 
+            background: linear-gradient(135deg, #0d2613 0%, #173d20 100%); 
             display: flex;
             flex-direction: column;
-            border-right: 2px solid #142d1a;
+            border-right: 4px dashed #76ff03; /* 네온 라임 포인트선 */
             z-index: 10;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+            box-shadow: 5px 0 25px rgba(0,0,0,0.5);
         }
         
-        /* 서비스 타이틀 */
         .sidebar-title {
-            padding: 20px 20px 10px 20px;
-            color: #e8f5e9;
+            padding: 25px 20px 10px 20px;
+            color: #76ff03;
             margin: 0;
-            font-size: 22px;
+            font-size: 28px;
             font-weight: bold;
             text-align: center;
-            letter-spacing: -1px;
+            text-shadow: 2px 2px 0px #000;
+            letter-spacing: 1px;
         }
         
         /* 탭 메뉴 스타일 */
         .tab-menu {
             display: flex;
             padding: 0 15px;
-            gap: 4px;
+            gap: 6px;
         }
         .tab-btn {
             flex: 1;
-            padding: 10px 5px;
-            background: #254d2e;
+            padding: 12px 5px;
+            background: #1b4d27;
             color: #a5d6a7;
-            border: none;
-            border-radius: 6px 6px 0 0;
+            border: 2px solid #0d2613;
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
-            text-align: center;
+            font-size: 15px;
+            font-family: 'Gaegu', sans-serif;
+            transition: all 0.2s ease;
         }
         .tab-btn.active {
-            background: #2e7d32;
-            color: #ffffff;
-            border-bottom: 2px solid #81c784;
+            background: #76ff03;
+            color: #0d2613;
+            border: 2px solid #76ff03;
+            border-bottom: none;
+            transform: translateY(-2px);
+            box-shadow: 0 -4px 10px rgba(118,255,3,0.3);
         }
 
         /* 검색 영역 박스 */
         .search-box {
-            padding: 15px;
-            background: #2e7d32; 
-            margin: 0 15px 10px 15px;
-            border-radius: 0 0 6px 6px;
+            padding: 18px;
+            background: #235e31; 
+            margin: 0 15px 15px 15px;
+            border-radius: 0 0 16px 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            gap: 12px;
+            border: 2px solid #76ff03;
+            border-top: none;
         }
         
-        /* 입력창 및 셀렉트 박스 스타일 */
         .search-box select, .search-box input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #1b3b22;
-            border-radius: 6px;
-            font-size: 14px;
-            background-color: #1b3b22;
+            padding: 12px;
+            border: 2px solid #0d2613;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Gaegu', sans-serif;
+            background-color: #0d2613;
             color: #ffffff;
             box-sizing: border-box;
         }
-        .search-box select option {
-            background-color: #1b3b22;
-            color: #ffffff;
+        .search-box select:focus, .search-box input:focus {
+            outline: none;
+            border-color: #76ff03;
         }
 
         .search-row {
             display: flex;
-            gap: 5px;
+            gap: 8px;
         }
         
-        /* 버튼 스타일 */
         .btn-search {
             width: 30%;
             padding: 10px;
-            background: #81c784; 
-            color: #1b3b22;
-            border: none;
-            border-radius: 6px;
+            background: #76ff03; 
+            color: #0d2613;
+            border: 2px solid #0d2613;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
+            font-size: 16px;
+            font-family: 'Gaegu', sans-serif;
         }
         .btn-nearby {
             width: 100%;
-            padding: 10px;
-            background: #8d6e63; 
+            padding: 12px;
+            background: #ff7043; 
             color: #ffffff;
-            border: none;
-            border-radius: 6px;
+            border: 2px solid #0d2613;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 13px;
-            text-align: center;
+            font-size: 16px;
+            font-family: 'Gaegu', sans-serif;
+            box-shadow: 0 4px 0px #bf360c;
+        }
+        .btn-nearby:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px #bf360c;
         }
 
-        /* 검색 결과 리스트 스타일 */
+        /* 검색 결과 리스트 크래프트 스티커 감성 디자인 */
         #results-list {
             flex: 1;
             overflow-y: auto;
             list-style: none;
             margin: 0;
-            padding: 10px 15px;
+            padding: 5px 15px;
         }
         
         .item {
-            padding: 15px;
-            border-radius: 8px;
-            background: #254d2e;
-            margin-bottom: 10px;
+            padding: 18px;
+            border-radius: 14px;
+            background: #fbe9e7; /* 부드러운 살구 크래프트지 느낌 */
+            margin-bottom: 12px;
             cursor: pointer;
-            transition: all 0.2s;
-            border-left: 4px solid #81c784;
+            transition: all 0.2s ease;
+            border: 2px solid #0d2613;
+            box-shadow: 4px 4px 0px #0d2613;
             position: relative;
         }
         .item:hover {
-            background: #2e5a36;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #76ff03;
+            background: #ffffff;
         }
         .item h5 {
-            margin: 0 0 8px 0;
-            color: #ffffff; 
-            font-size: 15px;
-            padding-right: 60px;
+            margin: 0 0 10px 0;
+            color: #0d2613; 
+            font-size: 19px;
+            font-weight: bold;
+            padding-right: 65px;
         }
         .item .info-text {
-            font-size: 12px;
-            color: #c8e6c9;
-            margin: 4px 0;
+            font-size: 14px;
+            color: #4e342e;
+            margin: 5px 0;
         }
         .item .label {
             font-weight: bold;
-            color: #81c784;
-            margin-right: 5px;
+            color: #e64a19;
+            margin-right: 6px;
         }
 
         .btn-bookmark {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 5px 8px;
-            font-size: 11px;
+            top: 14px;
+            right: 14px;
+            padding: 6px 10px;
+            font-size: 14px;
+            font-family: 'Gaegu', sans-serif;
             font-weight: bold;
-            border-radius: 4px;
-            border: none;
+            border-radius: 8px;
+            border: 2px solid #0d2613;
             cursor: pointer;
         }
-        .btn-save { background: #fff59d; color: #5d4037; }
-        .btn-delete { background: #ffab91; color: #d84315; }
+        .btn-save { background: #ccff90; color: #0d2613; box-shadow: 2px 2px 0px #0d2613; }
+        .btn-delete { background: #ff8a80; color: #0d2613; box-shadow: 2px 2px 0px #0d2613; }
 
-        /* 지도 영역 */
+        /* 지도 영역 키치 필터 */
         .map-wrapper {
             flex: 1;
             height: 100%;
@@ -187,55 +207,156 @@
             height: 100%;
         }
         
+        /* [변경] 단조로운 지도를 숲속 네온 팝 아트로 덮어주는 특수 오버레이 */
         .forest-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(46, 125, 50, 0.1);
-            mix-blend-mode: multiply;
+            background: radial-gradient(circle, rgba(118,255,3,0.03) 0%, rgba(13,38,19,0.15) 100%);
+            mix-blend-mode: color-burn;
             pointer-events: none;
             z-index: 5;
         }
 
         /* 곰돌이 오버레이 마커 핀 스타일 */
         .bear-marker-pin {
-            font-size: 32px;
+            font-size: 38px;
             cursor: pointer;
-            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
-            animation: bounce 0.5s ease-out;
+            filter: drop-shadow(3px 3px 0px #0d2613);
+            transition: transform 0.2s ease;
+        }
+        .bear-marker-pin:hover {
+            transform: scale(1.3) rotate(-10deg);
         }
 
-        @keyframes bounce {
-            0% { transform: translateY(-10px); }
-            100% { transform: translateY(0); }
-        }
-
-        /* 팝업 창 스타일 */
+        /* 말풍선 팝업 창 스타일 */
         .info-window-content {
-            padding: 10px;
-            font-size: 13px;
-            line-height: 1.5;
-            min-width: 160px;
-            background: #f1f8e9;
-            border-radius: 4px;
+            padding: 12px;
+            font-size: 15px;
+            line-height: 1.4;
+            min-width: 180px;
+            background: #fff9c4;
+            border: 2px solid #0d2613;
+            border-radius: 12px;
+            box-shadow: 4px 4px 0px #0d2613;
+            font-family: 'Gaegu', sans-serif;
         }
         .info-window-content h4 {
-            margin: 0 0 5px 0;
-            color: #1b3b22;
+            margin: 0 0 6px 0;
+            color: #d84315;
+            font-size: 17px;
         }
         .info-window-content p {
             margin: 0;
-            color: #4c8c4a;
+            color: #1b5e20;
+        }
+
+        /* ================= [새로 추가] 키치 포레스트 커스텀 모달 팝업 디자인 ================= */
+        .forest-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(13, 38, 19, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .forest-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .forest-modal {
+            background: #fff;
+            border: 4px solid #0d2613;
+            border-radius: 24px;
+            padding: 30px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 8px 8px 0px #76ff03, 12px 12px 0px #000;
+            transform: scale(0.7);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            background-image: radial-gradient(#ccff90 1.5px, transparent 1.5px), radial-gradient(#ccff90 1.5px, #ffffff 1.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+        .forest-modal-overlay.show .forest-modal {
+            transform: scale(1);
+        }
+        .modal-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: wave 1s infinite alternate;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #0d2613;
+            margin-bottom: 15px;
+        }
+        /* 사용자가 지정한 키치 문구 배너 스타일 */
+        .modal-banner {
+            background: #0d2613;
+            color: #76ff03;
+            font-size: 22px;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transform: rotate(-3deg);
+            box-shadow: 3px 3px 0px #ff7043;
+            letter-spacing: 1px;
+        }
+        .modal-banner.save-theme {
+            background: #ff7043;
+            color: #ffffff;
+            box-shadow: 3px 3px 0px #0d2613;
+        }
+        .btn-modal-close {
+            background: #0d2613;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-family: 'Gaegu', sans-serif;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px #76ff03;
+        }
+        .btn-modal-close:hover {
+            background: #1b4d27;
+        }
+
+        @keyframes wave {
+            0% { transform: rotate(-10deg); }
+            100% { transform: rotate(10deg); }
         }
     </style>
 </head>
 <body>
 
+<div class="forest-modal-overlay" id="custom-modal-overlay">
+    <div class="forest-modal">
+        <span class="modal-icon" id="modal-icon">🦊</span>
+        <div class="modal-title" id="modal-title">시스템 알림</div>
+        <div class="modal-banner" id="modal-banner">지구 살리기 GREEN GREEN</div>
+        <button class="btn-modal-close" onclick="closeForestModal()">확인 완료! 🌳</button>
+    </div>
+</div>
+
 <div class="container">
     <div class="sidebar">
-        <h1 class="sidebar-title">🌳 지구랑 썸타기</h1>
+        <h1 class="sidebar-title">⚡ 지구랑 썸타기 🐻</h1>
         
         <div class="tab-menu">
             <button id="tab-shop" class="tab-btn active" onclick="switchTab('shop')">제로웨이스트 샵</button>
@@ -245,7 +366,7 @@
 
         <div class="search-box" id="search-area">
             <select id="region-select" onchange="selectRegion()">
-                <option value="">-- 탐색할 지역 선택 (도 단위) --</option>
+                <option value="">-- 숲속 탐색지역 선택 --</option>
                 <option value="서울">서울특별시</option>
                 <option value="경기">경기도</option>
                 <option value="강원">강원도</option>
@@ -275,7 +396,7 @@
     </div>
 </div>
 
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=db51ba2fd4b1815d12500754751086cf&libraries=services&autoload=false"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_JAVASCRIPT_KEY&libraries=services"></script>
 
 <script>
     let map;
@@ -286,25 +407,53 @@
     let userLatitude = 37.566826; 
     let userLongitude = 126.9786567; 
 
-    kakao.maps.load(function() {
+    // [추가] 커스텀 모달 제어 함수
+    function showForestModal(type, targetName) {
+        const overlay = document.getElementById('custom-modal-overlay');
+        const icon = document.getElementById('modal-icon');
+        const title = document.getElementById('modal-title');
+        const banner = document.getElementById('modal-banner');
+
+        if (type === 'search') {
+            icon.innerHTML = '🍃';
+            title.innerHTML = `숲속 탐색 기지 가동!`;
+            banner.innerHTML = `지구 살리기 GREEN GREEN`;
+            banner.className = 'modal-banner'; // 기본 초록테마
+        } else if (type === 'save') {
+            icon.innerHTML = '💖';
+            title.innerHTML = `[${targetName}]`;
+            banner.innerHTML = `내 마음 속에 저장`;
+            banner.className = 'modal-banner save-theme'; // 주황 키치테마
+        }
+
+        overlay.classList.add('show');
+    }
+
+    function closeForestModal() {
+        document.getElementById('custom-modal-overlay').classList.remove('show');
+    }
+
+    try {
         const mapContainer = document.getElementById('map');
         const mapOption = {
             center: new kakao.maps.LatLng(userLatitude, userLongitude),
-            level: 5
+            level: 4
         };
 
         map = new kakao.maps.Map(mapContainer, mapOption);
         ps = new kakao.maps.services.Places();
 
         syncUserLocation();
-    });
+    } catch(e) {
+        console.error("카카오맵 초기화 실패: 키 설정을 확인하세요.");
+    }
 
     function syncUserLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 userLatitude = position.coords.latitude;
                 userLongitude = position.coords.longitude;
-                map.setCenter(new kakao.maps.LatLng(userLatitude, userLongitude));
+                if(map) map.setCenter(new kakao.maps.LatLng(userLatitude, userLongitude));
             });
         }
     }
@@ -340,38 +489,34 @@
     function searchNearby() {
         clearAllResults();
         document.getElementById('region-select').value = "";
-
         const searchCenter = new kakao.maps.LatLng(userLatitude, userLongitude);
         map.setCenter(searchCenter);
 
-        // [수정] 무분별하게 차단되지 않도록 카카오 정식 키워드 셋업 적용
         const searchQuery = (currentTab === 'shop') ? "제로웨이스트" : "전기차충전소";
         
-        const searchOptions = {
+        showForestModal('search'); // [수정] 검색시 커스텀 팝업 가동
+
+        ps.keywordSearch(searchQuery, placesSearchCB, {
             location: searchCenter,
             radius: 5000, 
             sort: kakao.maps.services.SortBy.ACCURACY
-        };
-
-        ps.keywordSearch(searchQuery, placesSearchCB, searchOptions);
+        });
     }
 
     function selectRegion() {
         const selectedRegion = document.getElementById('region-select').value;
         clearAllResults();
-
         if (!selectedRegion) return;
 
         const targetCategory = (currentTab === 'shop') ? "제로웨이스트" : "전기차충전소";
-        const fullQuery = `${selectedRegion} ${targetCategory}`;
-
-        ps.keywordSearch(fullQuery, placesSearchCB);
+        
+        showForestModal('search'); // [수정] 지역 선택 시 커스텀 팝업 가동
+        ps.keywordSearch(`${selectedRegion} ${targetCategory}`, placesSearchCB);
     }
 
     function searchPlaces() {
         const keyword = document.getElementById('keyword').value;
-
-        if (!keyword.replace(/^\s+|\s+$/g, '')) {
+        if (!keyword.trim()) {
             alert('검색어를 입력해주세요!');
             return;
         }
@@ -380,16 +525,18 @@
         clearAllResults();
 
         const suffix = (currentTab === 'shop') ? " 제로웨이스트" : " 전기차";
+        showForestModal('search'); // [수정] 검색 단추 클릭 시 커스텀 팝업 가동
         ps.keywordSearch(keyword + suffix, placesSearchCB);
     }
 
-    // [수정] 결과 누락을 일으키던 깐깐한 수동 필터 루프를 지우고 카카오 결과를 그대로 수용
-    function placesSearchCB(data, status, pagination) {
+    function placesSearchCB(data, status) {
         if (status === kakao.maps.services.Status.OK) {
             displayPlaces(data);
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+            closeForestModal();
             alert('검색 결과가 존재하지 않습니다.');
         } else {
+            closeForestModal();
             alert('검색 중 오류가 발생했습니다.');
         }
     }
@@ -430,14 +577,12 @@
                 openInfoWindow(overlay, shopFormat);
             };
 
-            const saveBtn = itemEl.querySelector(`#btn-save-${shopFormat.id}`);
-            saveBtn.onclick = function() {
+            itemEl.querySelector(`#btn-save-${shopFormat.id}`).onclick = function() {
                 addBookmark(shopFormat);
             };
 
             listEl.appendChild(itemEl);
         }
-
         map.setBounds(bounds);
     }
 
@@ -453,30 +598,17 @@
         });
 
         overlay.setMap(map);
-
-        content.onclick = function() {
-            openInfoWindow(overlay, shop);
-        };
-
+        content.onclick = function() { openInfoWindow(overlay, shop); };
         customOverlays.push(overlay);
         return overlay;
     }
 
     function openInfoWindow(overlay, shop) {
-        if (activeInfoWindow) {
-            activeInfoWindow.close();
-        }
+        if (activeInfoWindow) activeInfoWindow.close();
 
         const iconTag = (shop.type === 'shop') ? "🐻" : "🔋";
-        const contentString = `
-            <div class="info-window-content">
-                <h4>${iconTag} ${shop.name}</h4>
-                <p>${shop.address}</p>
-            </div>
-        `;
-
         const infoWindow = new kakao.maps.InfoWindow({
-            content: contentString,
+            content: `<div class="info-window-content"><h4>${iconTag} ${shop.name}</h4><p>${shop.address}</p></div>`,
             removable: true
         });
 
@@ -486,14 +618,14 @@
 
     function addBookmark(shop) {
         let bookmarks = JSON.parse(localStorage.getItem('earth_bookmarks')) || [];
-        const isExist = bookmarks.some(item => item.id === shop.id);
-        if (isExist) {
+        if (bookmarks.some(item => item.id === shop.id)) {
             alert('이미 자주 찾는 장소에 등록된 곳입니다!');
             return;
         }
         bookmarks.push(shop);
         localStorage.setItem('earth_bookmarks', JSON.stringify(bookmarks));
-        alert('🌿 자주 찾는 장소에 저장되었습니다!');
+        
+        showForestModal('save', shop.name); // [수정] 장소 저장 시 커스텀 팝업 가동
     }
 
     function deleteBookmark(shopId) {
@@ -509,19 +641,17 @@
         const bookmarks = JSON.parse(localStorage.getItem('earth_bookmarks')) || [];
 
         if (bookmarks.length === 0) {
-            listEl.innerHTML = `<li style="color: #a5d6a7; text-align: center; margin-top: 50px; font-size: 14px;">아직 저장된 장소가 없습니다.</li>`;
+            listEl.innerHTML = `<li style="color: #a5d6a7; text-align: center; margin-top: 50px; font-size: 18px;">아직 저장된 숲이 없습니다 둥!</li>`;
             return;
         }
 
         const bounds = new kakao.maps.LatLngBounds();
-
         bookmarks.forEach(shop => {
             const placePosition = new kakao.maps.LatLng(shop.lat, shop.lng);
             const overlay = displayBearOverlay(placePosition, shop);
             bounds.extend(placePosition);
 
             const iconTag = (shop.type === 'shop') ? "🌿" : "⚡";
-
             const itemEl = document.createElement('li');
             itemEl.className = 'item';
             itemEl.innerHTML = `
@@ -537,33 +667,22 @@
                 openInfoWindow(overlay, shop);
             };
 
-            const delBtn = itemEl.querySelector(`#btn-del-${shop.id}`);
-            delBtn.onclick = function() {
-                deleteBookmark(shop.id);
-            };
-
+            itemEl.querySelector(`#btn-del-${shop.id}`).onclick = function() { deleteBookmark(shop.id); };
             listEl.appendChild(itemEl);
         });
-
         map.setBounds(bounds);
     }
 
     function clearAllResults() {
-        for (let i = 0; i < customOverlays.length; i++) {
-            customOverlays[i].setMap(null);
-        }
+        customOverlays.forEach(o => o.setMap(null));
         customOverlays = [];
         document.getElementById('results-list').innerHTML = '';
-        if (activeInfoWindow) {
-            activeInfoWindow.close();
-            activeInfoWindow = null;
-        }
+        if (activeInfoWindow) { activeInfoWindow.close(); activeInfoWindow = null; }
     }
 
     document.getElementById('keyword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') searchPlaces();
     });
 </script>
-
 </body>
 </html>
