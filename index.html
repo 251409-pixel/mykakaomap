@@ -82,7 +82,7 @@
         }
         .item h5 {
             margin: 0 0 5px 0;
-            color: #2c5e3b; /* 친환경 느낌의 초록색 */
+            color: #2c5e3b; /* 친환경 느낌의 초록색 컨셉 */
             font-size: 16px;
         }
         .item .info-text {
@@ -101,13 +101,14 @@
             height: 100%;
         }
 
-        /* 팝업(인포윈도우) 커스텀 스타일 */
-        .info-window {
+        /* 팝업(인포윈도우) 내부 커스텀 스타일 */
+        .info-window-content {
             padding: 10px;
             font-size: 13px;
             line-height: 1.5;
+            min-width: 150px;
         }
-        .info-window h4 {
+        .info-window-content h4 {
             margin: 0 0 5px 0;
             color: #2c5e3b;
         }
@@ -120,8 +121,8 @@
         <div class="search-box">
             <select id="region-select" onchange="selectRegion()">
                 <option value="">-- 탐색할 지역 선택 --</option>
-                <option value="seoul">서울 (마포/성동 주변)</option>
-                <option value="gyeonggi">경기 (수원/일산 주변)</option>
+                <option value="seoul">서울 지역</option>
+                <option value="gyeonggi">경기 지역</option>
             </select>
             
             <div class="search-row">
@@ -129,8 +130,7 @@
                 <button onclick="searchPlaces()">검색</button>
             </div>
         </div>
-        <ul id="results-list">
-            </ul>
+        <ul id="results-list"></ul>
     </div>
 
     <div id="map"></div>
@@ -142,38 +142,37 @@
     let map;
     let ps; // 장소 검색 객체
     let markers = []; // 마커를 담을 배열
-    let activeInfoWindow = null; // 현재 열려있는 팝업을 저장할 변수
+    let activeInfoWindow = null; // 현재 지도에 열려있는 팝업 객체를 추적
 
-    // 🐻 귀여운 곰 이미지 마커 주소 (FlatIcon 무료 제공 오픈 주소)
-    // 나중에 너가 직접 그린 곰 이미지나 다른 아이콘 이미지 파일(예: 'bear.png')로 대체할 수 있어!
-    const BEAR_MARKER_URL = 'https://cdn-icons-png.flaticon.com/512/4148/4148530.png'; 
+    // 곰 마커 이미지 URL (무료 아이콘 사이트의 이미지 주소)
+    const BEAR_MARKER_IMAGE_URL = 'https://cdn-icons-png.flaticon.com/512/4148/4148530.png'; 
 
-    // 하드코딩된 실제/가상의 제로웨이스트 샵 데이터베이스 (테스트용 데이터)
+    // 제로웨이스트 샵 데이터베이스 (테스트용 더미 데이터)
     const zeroWasteShops = [
         {
             name: "알맹상점 망원점",
             lat: 37.555843,
             lng: 126.910363,
             address: "서울 마포구 월드컵로49 2층",
-            time: "12:00 ~ 20:00 (월요일 휴무)",
+            hours: "12:00 ~ 20:00 (월요일 휴무)",
             phone: "02-1234-5678",
             region: "seoul"
         },
         {
-            name: "더커먼 (성동점)",
-            lat: 37.545123,
-            lng: 127.042345,
-            address: "서울 성동구 왕십리로 100",
-            time: "11:00 ~ 19:00 (일요일 휴무)",
+            name: "지구샵 상도점",
+            lat: 37.502345,
+            lng: 126.942123,
+            address: "서울 동작구 성대로1길 16",
+            hours: "11:00 ~ 19:00 (일요일 휴무)",
             phone: "02-9876-5432",
             region: "seoul"
         },
         {
-            name: "푸른 바다 지구샵",
+            name: "푸른 지구 가가",
             lat: 37.263541,
             lng: 127.028631,
             address: "경기 수원시 팔달구 효원로 200",
-            time: "10:00 ~ 18:00 (연중무휴)",
+            hours: "10:00 ~ 18:00",
             phone: "031-111-2222",
             region: "gyeonggi"
         },
@@ -182,7 +181,7 @@
             lat: 37.658321,
             lng: 126.772543,
             address: "경기 고양시 일산동구 정발산로 24",
-            time: "11:00 ~ 21:00",
+            hours: "11:00 ~ 21:00",
             phone: "031-333-4444",
             region: "gyeonggi"
         }
@@ -192,16 +191,21 @@
     kakao.maps.load(function() {
         const mapContainer = document.getElementById('map');
         const mapOption = {
-            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 기본 서울시청
-            level: 5
+            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 기본 좌표 (서울시청)
+            level: 5 // 확대 레벨 5
         };
 
+        // 지도 생성
         map = new kakao.maps.Map(mapContainer, mapOption);
+        
+        // 장소 검색 서비스 객체 생성
         ps = new kakao.maps.services.Places();
 
+        // 현재 위치 가져오기
         getCurrentLocation();
     });
 
+    // 현재 위치를 가져오는 함수
     function getCurrentLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
@@ -209,6 +213,7 @@
                 const lon = position.coords.longitude;
                 const locPosition = new kakao.maps.LatLng(lat, lon);
                 
+                // 지도 중심을 현재 위치로 이동
                 map.setCenter(locPosition);
             }, function(err) {
                 console.error("위치 정보를 가져오지 못했습니다.", err);
@@ -216,27 +221,28 @@
         }
     }
 
-    // [핵심 추가] 지역 셀렉트 박스 변경 시 이벤트
+    // 드롭다운 지역 선택 시 호출되는 함수
     function selectRegion() {
         const selectedRegion = document.getElementById('region-select').value;
         
-        // 기존 검색 결과, 마커, 팝업 초기화
-        clearAll();
+        // 기존 검색 결과, 마커, 리스트, 팝업 지우기
+        clearAllResults();
 
         if (!selectedRegion) return;
 
-        // 선택한 지역에 해당하는 제로웨이스트 샵 필터링
+        // 데이터 배열에서 선택된 지역의 숍들만 필터링
         const filteredShops = zeroWasteShops.filter(shop => shop.region === selectedRegion);
 
         if (filteredShops.length === 0) {
-            alert("해당 지역에 등록된 제로웨이스트 샵이 없습니다.");
+            alert('해당 지역에 등록된 제로웨이스트 샵이 없습니다.');
             return;
         }
 
+        // 필터링된 결과 노출
         displayZeroWasteShops(filteredShops);
     }
 
-    // 제로웨이스트 샵들을 지도와 리스트에 뿌려주는 함수
+    // 제로웨이스트 샵 목록을 지도와 리스트에 표시하는 함수
     function displayZeroWasteShops(shops) {
         const listEl = document.getElementById('results-list');
         const bounds = new kakao.maps.LatLngBounds();
@@ -244,21 +250,21 @@
         shops.forEach(shop => {
             const placePosition = new kakao.maps.LatLng(shop.lat, shop.lng);
             
-            // 🐻 곰 마커 생성
+            // 곰 마커 생성
             const marker = displayBearMarker(placePosition, shop);
             bounds.extend(placePosition);
 
-            // 왼쪽 리스트 아이템 생성 (이름, 주소, 영업시간, 전화번호 포함)
+            // 리스트 아이템 동적 생성 (이름, 주소, 영업시간, 전화번호 포함)
             const itemEl = document.createElement('li');
             itemEl.className = 'item';
             itemEl.innerHTML = `
                 <h5>${shop.name}</h5>
                 <div class="info-text"><span class="label">주소:</span> ${shop.address}</div>
-                <div class="info-text"><span class="label">시간:</span> ${shop.time}</div>
+                <div class="info-text"><span class="label">시간:</span> ${shop.hours}</div>
                 <div class="info-text"><span class="label">전화:</span> ${shop.phone}</div>
             `;
             
-            // 리스트 클릭 시 이동 및 팝업 오픈
+            // 리스트 클릭 시 해당 좌표로 이동 및 팝업 표시
             itemEl.onclick = function() {
                 map.panTo(placePosition);
                 openInfoWindow(marker, shop);
@@ -267,22 +273,22 @@
             listEl.appendChild(itemEl);
         });
 
-        // 마커들이 한눈에 보이도록 지도 이동
+        // 마커가 모두 보이도록 지도 영역 확장 및 중심 이동
         map.setBounds(bounds);
     }
 
-    // 🐻 곰 마커를 생성하는 함수
+    // 곰 커스텀 마커를 생성하는 함수
     function displayBearMarker(position, shop) {
-        const imageSize = new kakao.maps.Size(40, 40); // 곰 아이콘 크기 설정
-        const markerImage = new kakao.maps.MarkerImage(BEAR_MARKER_URL, imageSize);
+        const imageSize = new kakao.maps.Size(36, 36); // 마커 크기 설정
+        const markerImage = new kakao.maps.MarkerImage(BEAR_MARKER_IMAGE_URL, imageSize);
 
         const marker = new kakao.maps.Marker({
             map: map,
             position: position,
-            image: markerImage // 커스텀 이미지 적용!
+            image: markerImage // 곰 아이콘 적용
         });
 
-        // 곰 마커 클릭 시 팝업(인포윈도우) 표시 이벤트
+        // 마커 클릭 시 이름, 주소 팝업 표시 이벤트 등록
         kakao.maps.event.addListener(marker, 'click', function() {
             openInfoWindow(marker, shop);
         });
@@ -291,66 +297,70 @@
         return marker;
     }
 
-    // 팝업(인포윈도우)을 열어주는 함수
+    // 이름과 주소를 보여주는 팝업(인포윈도우) 열기 함수
     function openInfoWindow(marker, shop) {
-        // 기존에 열려있는 팝업이 있다면 닫기
+        // 기존에 열려있는 팝업이 있다면 지도에서 먼저 닫기
         if (activeInfoWindow) {
             activeInfoWindow.close();
         }
 
         const content = `
-            <div class="info-window">
+            <div class="info-window-content">
                 <h4>${shop.name}</h4>
                 <p style="margin:0; color:#666;">${shop.address}</p>
             </div>
         `;
 
-        const infowindow = new kakao.maps.InfoWindow({
+        const infoWindow = new kakao.maps.InfoWindow({
             content: content,
-            removable: true // 닫기 버튼(X) 활성화
+            removable: true // 닫기(X) 버튼 활성화
         });
 
-        infowindow.open(map, marker);
-        activeInfoWindow = infowindow; // 현재 활성화된 팝업으로 저장
+        infoWindow.open(map, marker);
+        activeInfoWindow = infoWindow; // 추적 변수에 현재 열린 팝업 할당
     }
 
-    // 화면 정리 함수 (새로 검색하거나 지역 바꿀 때 작동)
-    function clearAll() {
-        // 1. 기존 마커 지우기
+    // 기존 검색 결과, 마커, 리스트, 팝업을 완전히 초기화하는 함수
+    function clearAllResults() {
+        // 마커 제거
         for (let i = 0; i < markers.length; i++) {
             markers[i].setMap(null);
         }
         markers = [];
 
-        // 2. 리스트 지우기
+        // 리스트 비우기
         document.getElementById('results-list').innerHTML = '';
 
-        // 3. 열려있던 팝업 닫기
+        // 열려있는 팝업 닫기
         if (activeInfoWindow) {
             activeInfoWindow.close();
             activeInfoWindow = null;
         }
     }
 
-    // 기존 키워드 검색 로직 연동 (기본 기능도 유지되도록 수정)
+    // 검색창 엔터키 이벤트
     document.getElementById('keyword').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') searchPlaces();
     });
 
+    // 키워드 검색 함수 (기본 카카오 검색 기능도 연동 유지)
     function searchPlaces() {
         const keyword = document.getElementById('keyword').value;
+
         if (!keyword.replace(/^\s+|\s+$/g, '')) {
             alert('키워드를 입력해주세요!');
             return;
         }
-        
-        // 키워드 검색 시 지역 셀렉트 박스 초기화 및 화면 청소
-        document.getElementById('region-select').value = "";
-        clearAll();
 
+        // 키워드 검색 시 지역 선택 select 박스 초기화 및 화면 정리
+        document.getElementById('region-select').value = "";
+        clearAllResults();
+
+        // 카카오 장소 검색 API 호출
         ps.keywordSearch(keyword, placesSearchCB);
     }
 
+    // 검색 결과 콜백 함수
     function placesSearchCB(data, status, pagination) {
         if (status === kakao.maps.services.Status.OK) {
             displayPlaces(data);
@@ -361,21 +371,20 @@
         }
     }
 
-    // 기존 카카오 API 검색 결과 표시용 (일반 마커 사용)
+    // 카카오 API로 직접 검색한 결과를 처리하는 함수
     function displayPlaces(places) {
         const listEl = document.getElementById('results-list');
         const bounds = new kakao.maps.LatLngBounds();
-        
+
         for (let i = 0; i < places.length; i++) {
             const placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
             
-            // 기존 검색도 요청에 맞추어 보려면 여기서도 곰 마커를 쓰거나 기본 마커를 쓰도록 선택 가능
-            // 여기서는 깔끔하게 가상 데이터 기반 샵 정보에 맞춰둔 포맷으로 변환해서 띄워줄게!
+            // 일반 검색 결과도 동일한 포맷으로 가공하여 곰 마커와 상세 정보 리스트 사용
             const shopFormat = {
                 name: places[i].place_name,
                 address: places[i].road_address_name || places[i].address_name,
-                time: "정보 없음 (전화 문의)",
-                phone: places[i].phone || "번호 없음"
+                hours: "정보 없음 (상점 문의)",
+                phone: places[i].phone || "전화번호 없음"
             };
 
             const marker = displayBearMarker(placePosition, shopFormat);
@@ -386,7 +395,7 @@
             itemEl.innerHTML = `
                 <h5>${shopFormat.name}</h5>
                 <div class="info-text"><span class="label">주소:</span> ${shopFormat.address}</div>
-                <div class="info-text"><span class="label">시간:</span> ${shopFormat.time}</div>
+                <div class="info-text"><span class="label">시간:</span> ${shopFormat.hours}</div>
                 <div class="info-text"><span class="label">전화:</span> ${shopFormat.phone}</div>
             `;
             
@@ -397,6 +406,7 @@
 
             listEl.appendChild(itemEl);
         }
+
         map.setBounds(bounds);
     }
 </script>
