@@ -93,9 +93,6 @@
             background-color: #1b3b22;
             color: #ffffff;
         }
-        .search-box input::placeholder {
-            color: #a5d6a7;
-        }
 
         .search-row {
             display: flex;
@@ -125,8 +122,6 @@
             font-size: 13px;
             text-align: center;
         }
-        .btn-search:hover { background: #66bb6a; }
-        .btn-nearby:hover { background: #795548; }
 
         /* 검색 결과 리스트 스타일 */
         #results-list {
@@ -136,15 +131,7 @@
             margin: 0;
             padding: 10px 15px;
         }
-        #results-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        #results-list::-webkit-scrollbar-thumb {
-            background: #2e5a36;
-            border-radius: 4px;
-        }
         
-        /* 카드 디자인 */
         .item {
             padding: 15px;
             border-radius: 8px;
@@ -153,12 +140,10 @@
             cursor: pointer;
             transition: all 0.2s;
             border-left: 4px solid #81c784;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             position: relative;
         }
         .item:hover {
             background: #2e5a36;
-            transform: translateY(-2px);
         }
         .item h5 {
             margin: 0 0 8px 0;
@@ -177,7 +162,6 @@
             margin-right: 5px;
         }
 
-        /* 저장 / 삭제 버튼 스타일 */
         .btn-bookmark {
             position: absolute;
             top: 12px;
@@ -190,11 +174,9 @@
             cursor: pointer;
         }
         .btn-save { background: #fff59d; color: #5d4037; }
-        .btn-save:hover { background: #fff176; }
         .btn-delete { background: #ffab91; color: #d84315; }
-        .btn-delete:hover { background: #ff8a65; }
 
-        /* 오른쪽 지도 영역 및 오버레이 숲 레이어 */
+        /* 지도 영역 */
         .map-wrapper {
             flex: 1;
             height: 100%;
@@ -217,7 +199,20 @@
             z-index: 5;
         }
 
-        /* 팝업(인포윈도우) 내부 커스텀 스타일 */
+        /* [수정] 곰돌이 오버레이 마커 핀 스타일 */
+        .bear-marker-pin {
+            font-size: 32px;
+            cursor: pointer;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
+            animation: bounce 0.5s ease-out;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* 팝업 창 스타일 */
         .info-window-content {
             padding: 10px;
             font-size: 13px;
@@ -229,12 +224,10 @@
         .info-window-content h4 {
             margin: 0 0 5px 0;
             color: #1b3b22;
-            font-size: 14px;
         }
         .info-window-content p {
             margin: 0;
             color: #4c8c4a;
-            font-size: 12px;
         }
     </style>
 </head>
@@ -287,14 +280,11 @@
 <script>
     let map;
     let ps; 
-    let markers = []; 
+    let customOverlays = []; // [수정] 마커 대신 커스텀 오버레이 배열 사용
     let activeInfoWindow = null; 
     let currentTab = 'shop'; 
     let userLatitude = 37.566826; 
     let userLongitude = 126.9786567; 
-
-    // [수정] 확실하게 렌더링되는 귀여운 갈색 곰돌이 오픈소스 마커 아이콘 주소로 변경
-    const BEAR_MARKER_IMAGE_URL = 'https://img.icons8.com/isometric/50/teddy-bear.png';
 
     kakao.maps.load(function() {
         const mapContainer = document.getElementById('map');
@@ -347,7 +337,6 @@
         document.getElementById('keyword').value = "";
     }
 
-    // [수정] 내 위치 주변 검색 시 엉뚱한 가게가 나오지 않도록 타깃 키워드를 명확히 명시
     function searchNearby() {
         clearAllResults();
         document.getElementById('region-select').value = "";
@@ -355,33 +344,29 @@
         const searchCenter = new kakao.maps.LatLng(userLatitude, userLongitude);
         map.setCenter(searchCenter);
 
-        // 아무 가게나 나오지 않게 정확한 단어로 검색 질의어 강제 고정
-        const searchQuery = (currentTab === 'shop') ? "제로웨이스트샵" : "전기차충전소";
+        const searchQuery = (currentTab === 'shop') ? "제로웨이스트" : "전기차충전소";
         
         const searchOptions = {
             location: searchCenter,
-            radius: 4000, // 내 주변 반경 4km로 제한
+            radius: 5000, 
             sort: kakao.maps.services.SortBy.ACCURACY
         };
 
         ps.keywordSearch(searchQuery, placesSearchCB, searchOptions);
     }
 
-    // [수정] 지역 선택 검색 시에도 탭 종류별 맞춤 키워드만 엄격히 적용되도록 처리
     function selectRegion() {
         const selectedRegion = document.getElementById('region-select').value;
         clearAllResults();
 
         if (!selectedRegion) return;
 
-        // 예: '경기도 제로웨이스트샵', '강원도 전기차충전소' 형태로 검색어 조립
-        const targetCategory = (currentTab === 'shop') ? "제로웨이스트샵" : "전기차충전소";
+        const targetCategory = (currentTab === 'shop') ? "제로웨이스트" : "전기차충전소";
         const fullQuery = `${selectedRegion} ${targetCategory}`;
 
         ps.keywordSearch(fullQuery, placesSearchCB);
     }
 
-    // 키워드 직접 입력 검색
     function searchPlaces() {
         const keyword = document.getElementById('keyword').value;
 
@@ -393,16 +378,33 @@
         document.getElementById('region-select').value = "";
         clearAllResults();
 
-        // 유저가 입력한 단어 뒤에 관련 핵심 키워드를 붙여 결과 필터링
-        const suffix = (currentTab === 'shop') ? " 제로웨이스트샵" : " 전기차충전소";
+        const suffix = (currentTab === 'shop') ? " 제로웨이스트" : " 전기차";
         ps.keywordSearch(keyword + suffix, placesSearchCB);
     }
 
     function placesSearchCB(data, status, pagination) {
         if (status === kakao.maps.services.Status.OK) {
-            displayPlaces(data);
+            // [수정] 카카오 데이터 중 무관한 피자집, 식당 등을 걸러내는 필터 로직 작동
+            const filteredData = data.filter(place => {
+                const name = place.place_name;
+                const category = place.category_name || "";
+                
+                if (currentTab === 'shop') {
+                    // 제로웨이스트 탭일 때는 상호명이나 카테고리에 관련 핵심 단어가 들어간 것만 허용
+                    return name.includes("제로웨이스트") || name.includes("알맹") || name.includes("지구") || name.includes("리필") || category.includes("친환경");
+                } else {
+                    // 전기차 충전소 탭일 때도 엄격하게 필터링
+                    return name.includes("충전") || name.includes("전기차") || category.includes("충전");
+                }
+            });
+
+            if (filteredData.length === 0) {
+                alert('해당 구역에 정확히 일치하는 친환경 거점 장소가 없습니다.');
+            } else {
+                displayPlaces(filteredData);
+            }
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-            alert('해당하는 친환경 거점 장소가 없습니다.');
+            alert('검색 결과가 존재하지 않습니다.');
         } else {
             alert('검색 중 오류가 발생했습니다.');
         }
@@ -426,7 +428,8 @@
                 type: currentTab
             };
 
-            const marker = displayBearMarker(placePosition, shopFormat);
+            // [수정] 무조건 곰돌이가 지도 위에 나타나도록 오버레이 핀 생성
+            const overlay = displayBearOverlay(placePosition, shopFormat);
             bounds.extend(placePosition);
 
             const itemEl = document.createElement('li');
@@ -441,7 +444,7 @@
             itemEl.onclick = function(e) {
                 if(e.target.classList.contains('btn-bookmark')) return;
                 map.panTo(placePosition);
-                openInfoWindow(marker, shopFormat);
+                openInfoWindow(overlay, shopFormat);
             };
 
             const saveBtn = itemEl.querySelector(`#btn-save-${shopFormat.id}`);
@@ -455,32 +458,36 @@
         map.setBounds(bounds);
     }
 
-    // 곰 마커 빌드 생성
-    function displayBearMarker(position, shop) {
-        const imageSize = new kakao.maps.Size(40, 40); // 곰 크기 설정
-        const markerImage = new kakao.maps.MarkerImage(BEAR_MARKER_IMAGE_URL, imageSize);
+    // [수정] 무조건 작동하는 곰돌이 커스텀 오버레이 핀 빌더
+    function displayBearOverlay(position, shop) {
+        const content = document.createElement('div');
+        content.className = 'bear-marker-pin';
+        content.innerHTML = '🐻'; // 곰돌이 이모지를 오버레이로 직접 지도에 띄움 (절대 안 깨짐)
 
-        const marker = new kakao.maps.Marker({
-            map: map,
+        const overlay = new kakao.maps.CustomOverlay({
             position: position,
-            image: markerImage // 새로 지정한 입체 곰 아이콘 이미지 매핑
+            content: content,
+            yAnchor: 1 // 핀 밑부분이 좌표에 닿도록 정렬
         });
 
-        kakao.maps.event.addListener(marker, 'click', function() {
-            openInfoWindow(marker, shop);
-        });
+        overlay.setMap(map);
 
-        markers.push(marker);
-        return marker;
+        // 곰돌이 클릭 시 팝업 열기
+        content.onclick = function() {
+            openInfoWindow(overlay, shop);
+        };
+
+        customOverlays.push(overlay);
+        return overlay;
     }
 
-    function openInfoWindow(marker, shop) {
+    function openInfoWindow(overlay, shop) {
         if (activeInfoWindow) {
             activeInfoWindow.close();
         }
 
         const iconTag = (shop.type === 'shop') ? "🐻" : "🔋";
-        const content = `
+        const contentString = `
             <div class="info-window-content">
                 <h4>${iconTag} ${shop.name}</h4>
                 <p>${shop.address}</p>
@@ -488,11 +495,12 @@
         `;
 
         const infoWindow = new kakao.maps.InfoWindow({
-            content: content,
+            content: contentString,
             removable: true
         });
 
-        infoWindow.open(map, marker);
+        // 커스텀 오버레이 위에 팝업 띄우기
+        infoWindow.open(map, overlay);
         activeInfoWindow = infoWindow;
     }
 
@@ -529,7 +537,7 @@
 
         bookmarks.forEach(shop => {
             const placePosition = new kakao.maps.LatLng(shop.lat, shop.lng);
-            const marker = displayBearMarker(placePosition, shop);
+            const overlay = displayBearOverlay(placePosition, shop);
             bounds.extend(placePosition);
 
             const iconTag = (shop.type === 'shop') ? "🌿" : "⚡";
@@ -546,7 +554,7 @@
             itemEl.onclick = function(e) {
                 if(e.target.classList.contains('btn-bookmark')) return;
                 map.panTo(placePosition);
-                openInfoWindow(marker, shop);
+                openInfoWindow(overlay, shop);
             };
 
             const delBtn = itemEl.querySelector(`#btn-del-${shop.id}`);
@@ -561,10 +569,11 @@
     }
 
     function clearAllResults() {
-        for (let i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
+        // [수정] 오버레이 청소
+        for (let i = 0; i < customOverlays.length; i++) {
+            customOverlays[i].setMap(null);
         }
-        markers = [];
+        customOverlays = [];
         document.getElementById('results-list').innerHTML = '';
         if (activeInfoWindow) {
             activeInfoWindow.close();
